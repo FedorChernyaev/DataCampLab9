@@ -1,0 +1,39 @@
+DROP TABLE DW_TIME_1;
+
+CREATE TABLE "FCHERNYAEV"."DW_TIME_1" 
+   (	"DATE_ID" DATE   NOT NULL, 
+	"DAY_NAME" VARCHAR2(30 BYTE), 
+	"DAY_NUMBER_IN_WEEK" NUMBER, 
+	"DAY_NUMBER_IN_MONTH" NUMBER, 
+	"DAY_NUMBER_IN_YEAR" NUMBER, 
+	"CALENDAR_WEEK_NUMBER" NUMBER, 
+	"WEEK_ENDING_DATE" DATE, 
+	"CALENDAR_MONTH_NUMBER" NUMBER, 
+	"DAYS_IN_CAL_MONTH" NUMBER, 
+	"END_OF_CAL_MONTH" DATE, 
+	"CALENDAR_MONTH_NAME" VARCHAR2(20 BYTE), 
+	"DAYS_IN_CAL_QUARTER" NUMBER, 
+	"BEG_OF_CAL_QUARTER" DATE, 
+	"END_OF_CAL_QUARTER" DATE, 
+	"CALENDAR_QUARTER_NUMBER" NUMBER, 
+	"CALENDAR_YEAR" NUMBER, 
+	"DAYS_IN_CALENDAR_YEAR" NUMBER, 
+	"BEG_OF_CAL_YEAR" DATE, 
+	"END_OF_CAL_YEAR" DATE )
+    PARTITION BY LIST(DAY_NAME)(
+    PARTITION PART_1 VALUES ('суббота','воскресенье'),
+    PARTITION PART_2 VALUES ('понедельник','вторник' ),
+    PARTITION PART_3 VALUES ('среда','четверг','пятница') );
+    
+
+
+alter table DW_TIME_1 merge partitions part_2, part_3 into partition part_2_new ;
+
+alter table DW_TIME_1 move partition part_2_new tablespace tmp_tmp;
+
+alter table DW_TIME_1 split partition part_2_new VALUES('среда','четверг','пятница') into(partition part_2 , partition part_3);
+
+alter table DW_TIME_1 truncate partition part_3;
+
+alter table DW_TIME_1 drop partition part_3;
+
